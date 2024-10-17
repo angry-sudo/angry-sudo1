@@ -1,0 +1,28 @@
+local sharedFolder = game.ReplicatedStorage:WaitForChild("network"):WaitForChild("Shared")
+
+-- Tüm RemoteEvent'leri kontrol et
+for _, remote in pairs(sharedFolder:GetChildren()) do
+    if remote:IsA("RemoteEvent") then
+        local hasKickArgument = false
+        
+        -- Oyun içerisindeki tüm Script/LocalScript'leri kontrol et
+        for _, descendant in pairs(game:GetDescendants()) do
+            if descendant:IsA("Script") or descendant:IsA("LocalScript") then
+                local scriptSource = descendant.Source
+                
+                -- Eğer RemoteEvent adı ve "Kick" kelimesi scriptte geçiyorsa
+                if scriptSource:find(remote.Name) and scriptSource:find("Kick") then
+                    hasKickArgument = true
+                    print("Silinen Script/LocalScript: " .. descendant.Name .. " (" .. descendant.ClassName .. ")")
+                    descendant:Destroy()
+                end
+            end
+        end
+
+        -- Eğer RemoteEvent, "Kick" argümanı ile ilgiliyse sil
+        if hasKickArgument then
+            print("Silinen RemoteEvent: " .. remote.Name)
+            remote:Destroy()
+        end
+    end
+end
